@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        platform: [macos-latest, ubuntu-latest, windows-latest]
+        platform: [macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout code
@@ -18,10 +18,22 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown
+          targets: wasm32-unknown-unknown,aarch64-apple-ios,x86_64-apple-ios,armv7-linux-androideabi,aarch64-linux-android
+
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry
+
+      - name: Cache cargo target
+        uses: actions/cache@v3
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-target
 
       - name: Install Dioxus CLI
-        run: cargo install dioxus-cli
+        run: cargo install dioxus-cli --version 0.6.3
 
       - name: Install platform-specific dependencies
         shell: bash
@@ -30,47 +42,44 @@ jobs:
             "macOS")
               brew install create-dmg
               ;;
-            "Linux")
-              sudo apt-get update
-              sudo apt-get install -y fpm desktop-file-utils
-              ;;
             "Windows")
               choco install wixtoolset -y
               ;;
           esac
 
-      - name: Build and bundle
+      - name: Bundle desktop apps
+        shell: bash
         run: |
           case "$RUNNER_OS" in
             "macOS")
-              dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
-              ;;
-            "Linux")
-              dx bundle --platform desktop --release --package-types "deb" --package-types "appimage"
+              dx bundle --platform desktop --release --package-types app,dmg
               ;;
             "Windows")
-              dx bundle --platform desktop --release --package-types "msi" --package-types "exe"
+              dx bundle --platform desktop --release --package-types exe,msi
               ;;
           esac
 
+      - name: Bundle iOS app
+        if: runner.os == 'macOS'
+        run: dx bundle --platform ios --release --package-types app
+
+      - name: Bundle Android app
+        run: dx bundle --platform android --release --package-types apk
+
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4  # 关键修复点
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-binaries
           path: |
-            ./dist/*.dmg
-            ./dist/*.app
-            ./dist/*.deb
-            ./dist/*.appimage
-            ./dist/*.msi
-            ./dist/*.exe
+            ./dist/
+            target/**/bundle/**/*.{dmg,app,exe,msi,apk}
 
   create-release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4  # 同步更新
+        uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
@@ -79,9 +88,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/macOS-binaries/*.dmg
-            artifacts/macOS-binaries/*.app
-            artifacts/Linux-binaries/*.deb
-            artifacts/Linux-binaries/*.appimage
-            artifacts/Windows-binaries/*.msi
-            artifacts/Windows-binaries/*.exe
+            artifacts/**/*.{dmg,app,exe,msi,apk}
