@@ -32,11 +32,19 @@ jobs:
           path: target
           key: ${{ runner.os }}-cargo-target
 
+      - name: Install OpenSSL
+        if: runner.os == 'macOS'
+        run: brew install openssl@3
+
+      - name: Export OpenSSL path for dx
+        if: runner.os == 'macOS'
+        run: echo "DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
+  
+
       - name: Install Dioxus CLI
         shell: bash
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          brew install openssl@3
           cargo binstall dioxus-cli
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
         
