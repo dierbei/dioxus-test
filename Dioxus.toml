@@ -23,6 +23,6 @@ script = []
 [bundle]
 identifier = "com.xiaolatiao"
 publisher = "xiaolatiao"
-icon = [
-   "icons/icon.ico"
-]
+# icon = [
+#    "icons/icon.ico"
+# ]
