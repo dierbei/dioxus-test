@@ -18,8 +18,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown,aarch64-apple-ios,x86_64-apple-ios,aarch64-apple-ios-sim,armv7-linux-androideabi,aarch64-linux-android
-      
+          targets: wasm32-unknown-unknown,aarch64-apple-ios,x86_64-apple-ios,aarch64-apple-ios-sim
+
       - name: Cache cargo registry
         uses: actions/cache@v3
         with:
@@ -39,43 +39,37 @@ jobs:
           echo "DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
 
       - name: Install Dioxus CLI
-        shell: bash
         run: |
-          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
           cargo install dioxus-cli --version 0.6.3
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        
-      # - name: Install platform-specific dependencies
-      #   shell: bash
-      #   run: |
-      #     case "$RUNNER_OS" in
-      #       "macOS")
-      #         brew install create-dmg
-      #         ;;
-      #       "Windows")
-      #         choco install wixtoolset -y
-      #         ;;
-      #     esac
 
-      # - name: Bundle desktop apps
-      #   shell: bash
-      #   run: |
-      #     case "$RUNNER_OS" in
-      #       "macOS")
-      #         dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
-      #         ;;
-      #       "Windows")
-      #         dx bundle --platform desktop --release --package-types "nsis" --package-types "msi"
-      #         ;;
-      #     esac
+      - name: Install platform-specific dependencies
+        shell: bash
+        run: |
+          case "$RUNNER_OS" in
+            "macOS")
+              brew install create-dmg
+              ;;
+            "Windows")
+              choco install wixtoolset -y
+              ;;
+          esac
 
-      # - name: Bundle iOS app
-      #   if: runner.os == 'macOS'
-      #   run: dx bundle --platform ios --release --package-types "ios"
+      - name: Bundle desktop apps
+        shell: bash
+        run: |
+          case "$RUNNER_OS" in
+            "macOS")
+              dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
+              ;;
+            "Windows")
+              dx bundle --platform desktop --release --package-types "nsis" --package-types "msi"
+              ;;
+          esac
 
-      - name: Build Android app
+      - name: Bundle iOS app
         if: runner.os == 'macOS'
-        run: dx build --platform android --release --verbose
+        run: dx bundle --platform "ios" --release --package-types "macos"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -84,10 +78,24 @@ jobs:
           path: |
             ./dist/
             target/**/bundle/**/*.{dmg,app,nsis,msi}
-            target/**/build/android/**/*.apk
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Android with Docker
+        uses: maxence-cornaton/dioxus-android-docker-builder@v0.3.0
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: target/**/build/android/**/*.apk
 
   create-release:
-    needs: build
+    needs: [build, android]
     runs-on: macos-latest
     steps:
       - name: Download all artifacts
