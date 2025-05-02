@@ -33,7 +33,7 @@ jobs:
           key: ${{ runner.os }}-cargo-target
 
       - name: Install Dioxus CLI
-        run: cargo install dioxus-cli --version 0.6.3
+        run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash # cargo install dioxus-cli --version 0.6.3
 
       - name: Install platform-specific dependencies
         shell: bash
