@@ -52,19 +52,19 @@ jobs:
         run: |
           case "$RUNNER_OS" in
             "macOS")
-              dx bundle --platform desktop --release --package-types app,dmg
+              dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
               ;;
             "Windows")
-              dx bundle --platform desktop --release --package-types exe,msi
+              dx bundle --platform desktop --release --package-types "exe" --package-types "msi"
               ;;
           esac
 
       - name: Bundle iOS app
         if: runner.os == 'macOS'
-        run: dx bundle --platform ios --release --package-types app
+        run: dx bundle --platform ios --release --package-types "app"
 
       - name: Bundle Android app
-        run: dx bundle --platform android --release --package-types apk
+        run: dx bundle --platform android --release --package-types "apk"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
