@@ -32,20 +32,17 @@ jobs:
           path: target
           key: ${{ runner.os }}-cargo-target
 
-      - name: Install OpenSSL
+      - name: Install OpenSSL (macOS)
         if: runner.os == 'macOS'
-        run: brew install openssl@3
-
-      - name: Export OpenSSL path for dx
-        if: runner.os == 'macOS'
-        run: echo "DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
-  
+        run: |
+          brew install openssl@3
+          echo "DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix openssl@3)/lib" >> $GITHUB_ENV
 
       - name: Install Dioxus CLI
         shell: bash
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          cargo binstall dioxus-cli
+          ~/.cargo/bin/cargo-binstall dioxus-cli --version 0.6.3 --no-confirm
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
         
       - name: Install platform-specific dependencies
@@ -65,7 +62,7 @@ jobs:
         run: |
           case "$RUNNER_OS" in
             "macOS")
-              dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
+              dx bundle --platform desktop --release --package-types "macos" --package-types dmg
               ;;
             "Windows")
               dx bundle --platform desktop --release --package-types "nsis" --package-types "msi"
@@ -77,6 +74,7 @@ jobs:
         run: dx bundle --platform ios --release --package-types "ios"
 
       - name: Build Android app
+        if: runner.os == 'macOS'
         run: dx build --platform android --release
 
       - name: Upload artifacts
@@ -85,7 +83,7 @@ jobs:
           name: ${{ runner.os }}-binaries
           path: |
             ./dist/
-            target/**/bundle/**/*.{dmg,app,nsis,msi,ios}
+            target/**/bundle/**/*.{dmg,app,nsis,msi}
             target/**/build/android/**/*.apk
 
   create-release:
@@ -102,4 +100,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/**/*.{dmg,ios,nsis,msi,apk}
+            artifacts/**/*.{dmg,app,nsis,msi,apk}
