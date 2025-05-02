@@ -3,7 +3,7 @@ name: Release Build
 on:
   push:
     tags:
-      - "v*"  # 仅当推送 tag 时触发（如 v1.0.0）
+      - "v*"
 
 jobs:
   build:
@@ -18,7 +18,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown  # 如需 Web 支持
+          targets: wasm32-unknown-unknown
 
       - name: Install Dioxus CLI
         run: cargo install dioxus-cli
@@ -35,7 +35,6 @@ jobs:
               sudo apt-get install -y fpm desktop-file-utils
               ;;
             "Windows")
-              # 安装 WiX Toolset (Windows 安装包工具)
               choco install wixtoolset -y
               ;;
           esac
@@ -55,7 +54,7 @@ jobs:
           esac
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # 关键修复点
         with:
           name: ${{ runner.os }}-binaries
           path: |
@@ -71,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4  # 同步更新
         with:
           path: ./artifacts
 
