@@ -42,7 +42,7 @@ jobs:
         shell: bash
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          ~/.cargo/bin/cargo-binstall dioxus-cli --version 0.6.3 --no-confirm
+          cargo install dioxus-cli --version 0.6.3
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
         
       - name: Install platform-specific dependencies
