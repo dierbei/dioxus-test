@@ -88,11 +88,12 @@ jobs:
       - name: Build Android with Docker
         uses: maxence-cornaton/dioxus-android-docker-builder@v0.3.0
 
-      - name: Upload Android APK
+      - name: Upload Android AAB
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
-          path: target/**/build/android/**/*.apk
+          name: android-aab
+          path: target/dx/**/bundle/**/**/*.aab
+        # target/**/build/android/**/*.apk
 
   create-release:
     needs: [build, android]
