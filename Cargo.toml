@@ -10,7 +10,7 @@ edition = "2021"
 dioxus = { version = "0.6.0", features = ["fullstack"] }
 dioxus-free-icons = { version = "0.9", features = ["bootstrap"] }
 serde = { version = "1.0.219", features = ["derive"] }
-reqwest = { version = "0.12.15", features = ["json"] }
+reqwest = { version = "0.12.15", default-features = false, features = ["rustls-tls"] }
 image = "0.24.7"
 icns = "0.3.1"
 ico = "0.3.0"

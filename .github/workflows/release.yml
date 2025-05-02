@@ -77,7 +77,7 @@ jobs:
           name: ${{ runner.os }}-binaries
           path: |
             ./dist/
-            target/**/bundle/**/*.{dmg,app,nsis,msi}
+            target/**/bundle/**/*.{dmg,app,nsis,msi,ios}
 
   android:
     runs-on: ubuntu-latest
