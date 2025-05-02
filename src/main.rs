@@ -1,8 +1,10 @@
 use dioxus::{html::div, prelude::*};
+use std::env;
 
 mod header;
 mod viewers;
 mod table;
+mod icon_generator;
 
 use header::Header;
 use viewers::Viewer;
@@ -14,6 +16,15 @@ const HEADER_SVG: Asset = asset!("/assets/header.svg");
 
 fn main() {
     dioxus::launch(App);
+
+    // cargo run -- generate-icons
+    // let args: Vec<String> = env::args().collect();
+    // if args.len() > 1 && args[1] == "generate-icons" {
+    //     icon_generator::generate_icons();
+    //     println!("Icons generated successfully!");
+    // } else {
+    //     println!("Usage: cargo run -- generate-icons");
+    // }
 }
 
 #[component]
