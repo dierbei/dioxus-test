@@ -61,7 +61,7 @@ jobs:
 
       - name: Bundle iOS app
         if: runner.os == 'macOS'
-        run: dx bundle --platform ios --release --package-types "app"
+        run: dx bundle --platform ios --release --package-types "ios"
 
       - name: Bundle Android app
         run: dx bundle --platform android --release --package-types "apk"
@@ -72,7 +72,7 @@ jobs:
           name: ${{ runner.os }}-binaries
           path: |
             ./dist/
-            target/**/bundle/**/*.{dmg,app,exe,msi,apk}
+            target/**/bundle/**/*.{dmg,ios,exe,msi,apk}
 
   create-release:
     needs: build
@@ -88,4 +88,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/**/*.{dmg,app,exe,msi,apk}
+            artifacts/**/*.{dmg,ios,exe,msi,apk}
