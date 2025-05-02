@@ -45,37 +45,37 @@ jobs:
           cargo install dioxus-cli --version 0.6.3
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
         
-      - name: Install platform-specific dependencies
-        shell: bash
-        run: |
-          case "$RUNNER_OS" in
-            "macOS")
-              brew install create-dmg
-              ;;
-            "Windows")
-              choco install wixtoolset -y
-              ;;
-          esac
+      # - name: Install platform-specific dependencies
+      #   shell: bash
+      #   run: |
+      #     case "$RUNNER_OS" in
+      #       "macOS")
+      #         brew install create-dmg
+      #         ;;
+      #       "Windows")
+      #         choco install wixtoolset -y
+      #         ;;
+      #     esac
 
-      - name: Bundle desktop apps
-        shell: bash
-        run: |
-          case "$RUNNER_OS" in
-            "macOS")
-              dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
-              ;;
-            "Windows")
-              dx bundle --platform desktop --release --package-types "nsis" --package-types "msi"
-              ;;
-          esac
+      # - name: Bundle desktop apps
+      #   shell: bash
+      #   run: |
+      #     case "$RUNNER_OS" in
+      #       "macOS")
+      #         dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
+      #         ;;
+      #       "Windows")
+      #         dx bundle --platform desktop --release --package-types "nsis" --package-types "msi"
+      #         ;;
+      #     esac
 
-      - name: Bundle iOS app
-        if: runner.os == 'macOS'
-        run: dx bundle --platform ios --release --package-types "ios"
+      # - name: Bundle iOS app
+      #   if: runner.os == 'macOS'
+      #   run: dx bundle --platform ios --release --package-types "ios"
 
       - name: Build Android app
         if: runner.os == 'macOS'
-        run: dx build --platform android --release
+        run: dx build --platform android --release --verbose
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
