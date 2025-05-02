@@ -1,0 +1,88 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - "v*"  # 仅当推送 tag 时触发（如 v1.0.0）
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown  # 如需 Web 支持
+
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli
+
+      - name: Install platform-specific dependencies
+        shell: bash
+        run: |
+          case "$RUNNER_OS" in
+            "macOS")
+              brew install create-dmg
+              ;;
+            "Linux")
+              sudo apt-get update
+              sudo apt-get install -y fpm desktop-file-utils
+              ;;
+            "Windows")
+              # 安装 WiX Toolset (Windows 安装包工具)
+              choco install wixtoolset -y
+              ;;
+          esac
+
+      - name: Build and bundle
+        run: |
+          case "$RUNNER_OS" in
+            "macOS")
+              dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
+              ;;
+            "Linux")
+              dx bundle --platform desktop --release --package-types "deb" --package-types "appimage"
+              ;;
+            "Windows")
+              dx bundle --platform desktop --release --package-types "msi" --package-types "exe"
+              ;;
+          esac
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ runner.os }}-binaries
+          path: |
+            ./dist/*.dmg
+            ./dist/*.app
+            ./dist/*.deb
+            ./dist/*.appimage
+            ./dist/*.msi
+            ./dist/*.exe
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            artifacts/macOS-binaries/*.dmg
+            artifacts/macOS-binaries/*.app
+            artifacts/Linux-binaries/*.deb
+            artifacts/Linux-binaries/*.appimage
+            artifacts/Windows-binaries/*.msi
+            artifacts/Windows-binaries/*.exe
