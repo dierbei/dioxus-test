@@ -1,5 +1,4 @@
-use image::{ImageBuffer, Rgba};
-use std::path::Path;
+use image;
 
 pub fn generate_icons() {
     let sizes = [32, 128, 256];
@@ -27,9 +26,11 @@ pub fn generate_icons() {
     let sizes = [16, 32, 48, 256];
     for size in sizes.iter() {
         let resized = base_image.resize(*size, *size, image::imageops::FilterType::Lanczos3);
+        // 确保转换为 RGBA 格式
         let rgba = resized.into_rgba8();
-        let ico_encoder = ico::IconImage::from_rgba_data(*size, *size, rgba.into_raw());
-        ico.add_entry(ico::IconDirEntry::encode(&ico_encoder).expect("Failed to encode .ico"));
+        let raw_data = rgba.into_raw();
+        let icon = ico::IconImage::from_rgba_data(*size, *size, raw_data);
+        ico.add_entry(ico::IconDirEntry::encode(&icon).expect("Failed to encode icon"));
     }
     let mut ico_file = std::fs::File::create("icons/icon.ico").expect("Failed to create .ico file");
     ico.write(&mut ico_file).expect("Failed to write .ico file");

@@ -62,7 +62,7 @@ jobs:
         run: |
           case "$RUNNER_OS" in
             "macOS")
-              dx bundle --platform desktop --release --package-types "macos" --package-types dmg
+              dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
               ;;
             "Windows")
               dx bundle --platform desktop --release --package-types "nsis" --package-types "msi"

@@ -21,7 +21,7 @@ fn main() {
     //     icon_generator::generate_icons();
     //     println!("Icons generated successfully!");
     // } else {
-    //     println!("Usage: cargo run -- generate-icons");
+    //     dioxus::launch(App);
     // }
 }
 
