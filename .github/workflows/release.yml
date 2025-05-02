@@ -69,15 +69,18 @@ jobs:
 
       - name: Bundle iOS app
         if: runner.os == 'macOS'
-        run: dx bundle --platform "ios" --release --package-types "macos"
+        run: dx bundle --platform ios --release --package-types "ios"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-binaries
           path: |
-            ./dist/
-            target/**/bundle/**/*.{dmg,app,nsis,msi,ios}
+            target/dx/**/bundle/macos/bundle/macos/*.app
+            target/dx/**/bundle/macos/bundle/dmg/*.dmg
+            target/dx/**/release/ios/*.app
+            target/dx/**/bundle/windows/bundle/nsis/*.exe
+            target/dx/**/bundle/windows/bundle/msi/*.msi
 
   android:
     runs-on: ubuntu-latest
@@ -93,7 +96,6 @@ jobs:
         with:
           name: android-aab
           path: target/dx/**/bundle/**/**/*.aab
-        # target/**/build/android/**/*.apk
 
   create-release:
     needs: [build, android]
@@ -109,4 +111,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/**/*.{dmg,app,nsis,msi,apk}
+            artifacts/**/*.{dmg,app,exe,msi,aab}
