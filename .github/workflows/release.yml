@@ -58,7 +58,7 @@ jobs:
               dx bundle --platform desktop --release --package-types "macos" --package-types "dmg"
               ;;
             "Windows")
-              dx bundle --platform desktop --release --package-types "exe" --package-types "msi"
+              dx bundle --platform desktop --release --package-types "nsis" --package-types "msi"
               ;;
           esac
 
@@ -75,7 +75,7 @@ jobs:
           name: ${{ runner.os }}-binaries
           path: |
             ./dist/
-            target/**/bundle/**/*.{dmg,ios,exe,msi,apk}
+            target/**/bundle/**/*.{dmg,ios,nsis,msi,apk}
 
   create-release:
     needs: build
@@ -91,4 +91,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/**/*.{dmg,ios,exe,msi,apk}
+            artifacts/**/*.{dmg,ios,nsis,msi,apk}
