@@ -36,7 +36,8 @@ jobs:
         shell: bash
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          cargo install dioxus-cli
+          brew install openssl@3
+          cargo binstall dioxus-cli
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
         
       - name: Install platform-specific dependencies
@@ -93,4 +94,4 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/**/*.{dmg,ios,nsis,msi,apk,app}
+            artifacts/**/*.{dmg,ios,nsis,msi,apk}
