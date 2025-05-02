@@ -1,4 +1,5 @@
-use image;
+use image::{DynamicImage, ImageBuffer, RgbaImage, ImageFormat};
+use std::path::Path;
 
 pub fn generate_icons() {
     let sizes = [32, 128, 256];
@@ -9,15 +10,21 @@ pub fn generate_icons() {
     
     for size in sizes.iter() {
         let resized = base_image.resize(*size, *size, image::imageops::FilterType::Lanczos3);
-        // 转换为 RGBA 格式
+        // 转换为 RGBA 格式并保存为 PNG
         let rgba = resized.into_rgba8();
-        rgba.save(format!("icons/{}x{}.png", size, size)).expect("Failed to save icon");
+        rgba.save_with_format(
+            format!("icons/{}x{}.png", size, size),
+            ImageFormat::Png
+        ).expect("Failed to save icon");
         
         // 生成 2x 版本
         if *size == 128 {
             let resized_2x = base_image.resize(*size * 2, *size * 2, image::imageops::FilterType::Lanczos3);
             let rgba_2x = resized_2x.into_rgba8();
-            rgba_2x.save(format!("icons/{}x{}@2x.png", size, size)).expect("Failed to save 2x icon");
+            rgba_2x.save_with_format(
+                format!("icons/{}x{}@2x.png", size, size),
+                ImageFormat::Png
+            ).expect("Failed to save 2x icon");
         }
     }
     
