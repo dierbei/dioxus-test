@@ -16,8 +16,6 @@ const HEADER_SVG: Asset = asset!("/assets/header.svg");
 
 fn main() {
     dioxus::launch(App);
-
-    // cargo run -- generate-icons
     // let args: Vec<String> = env::args().collect();
     // if args.len() > 1 && args[1] == "generate-icons" {
     //     icon_generator::generate_icons();
